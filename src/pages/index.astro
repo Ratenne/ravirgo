@@ -2,6 +2,7 @@
 import '../styles/home.css';
 import Brand from '../components/Brand.astro';
 import Arrow from '../components/Arrow.astro';
+import {showcaseConfig} from '../scripts/showcase-config';
 import { services, categories, featuredServices } from '../data/services';
 const structuredData = {
  '@context':'https://schema.org','@graph':[
@@ -26,7 +27,9 @@ const structuredData = {
 <h1 class="sr-only">RAVIRGO 서비스</h1>
 <section class="showcase" data-showcase aria-label="스크롤 서비스 쇼케이스"><div class="workbench">
  <img class="scene-poster" src="/assets/orbital-poster.webp" alt="" width="1672" height="941" fetchpriority="high"/>
- <div id="orbital-view" class="orbital-view" aria-hidden="true" data-featured={JSON.stringify(featuredServices.map(s=>({slug:s.slug,name:s.name,url:s.url,exhibit:s.exhibit})))}></div>
+ <div id="orbital-view" class="orbital-view" data-featured={JSON.stringify(featuredServices.map(s=>({slug:s.slug,name:s.name,url:s.url,exhibit:s.exhibit})))}>
+  <div class="model-labels" aria-label="대표 서비스">{featuredServices.slice(0,showcaseConfig.maxFeatured).map(s=><a class="model-label" data-model-label={s.slug} href={s.url} hidden draggable="false">{s.name}<span aria-hidden="true">↗</span></a>)}</div>
+ </div>
  <div class="scene-scrim" aria-hidden="true"></div>
  <div class="discovery" id="discovery">
   <form class="service-search" role="search" action="#services" data-search hidden>

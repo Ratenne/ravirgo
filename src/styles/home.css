@@ -22,3 +22,6 @@
 
 /* Compact workbench: the HTML catalogue is always directly below the scene. */
 @media(max-width:600px){.showcase .workbench{height:440px}.showcase .discovery{top:20px}.showcase .scene-hint{font-size:11px}}
+
+/* Service names are semantic HTML links projected onto the 3D stage. */
+.model-labels{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}.model-label{position:absolute;top:0;left:0;display:flex;align-items:center;justify-content:center;gap:12px;width:166px;min-height:38px;padding:7px 12px;border:1px solid #b49760;border-radius:7px;background:#0b1825;color:var(--ink);font-size:13px;line-height:1.4;white-space:nowrap;pointer-events:auto;touch-action:pan-y}.model-label span{color:var(--gold)}.model-label:hover,.model-label:focus-visible{color:var(--gold);border-color:var(--gold)}@media(max-width:600px){.model-label{width:120px;min-height:34px;gap:7px;padding:6px 8px;font-size:11px}}

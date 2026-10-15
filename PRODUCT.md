@@ -53,3 +53,15 @@ Preserve the existing stone/dusk scene and (.2,2.7) luminous hub. Services indep
 
 ## Latest compact repeating route — 2026-10-14
 This user-approved update supersedes the 800vh single-pass scroll contract. The stage returns to a compact layout with the full semantic service catalogue directly below, visible by default. Wheel input over the canvas or horizontal drag/swipe advances an unbounded route clock; controls/catalogue and vertical touch scrolling retain native page scrolling. No time-based auto movement. Each actor repeatedly enters, makes one CCW circle, exits, and waits offstage before re-entry; backwards input retraces the same route. Orbit radius is 5.05 (previously 2.45); the luminous hub is aligned to the disk centre (0,0), keeping 1.37-radius podiums supported on the 6.53-radius surface. All model bodies and podiums remain clickable service targets, with drag/click separation. Scene geometry/materials, brand, real links, filters and static fallbacks remain.
+
+
+### Responsive input and HTML service names — 2026-10-15
+Wheel travel normalizes against live browser viewport height (four heights per route cycle), horizontal drag against live stage width (one width per cycle); resize preserves route progress. Service names are statically rendered HTML anchors positioned by the 3D camera, with occlusion, visibility, native link/keyboard access and gesture guards. This replaces GPU Sprite text labels while preserving models, orbit, catalogue and navigation.
+
+
+### Native mesh and rendering quality — 2026-10-15
+Preserve established models' identity and all interactions. Service sculptures use smooth bevelled separated bars and solid closed UVmapped printed paper; podium edge profiles and metallic response are refined. Desktop DPR cap2 with MSAA4, mobile cap1.5/MSAA2, lowmemorycap1.25; avoid early CPUwarmup qualitydrop and redundant FXAA blur. No new visible controls or service copy.
+
+
+### Publishing policy — 2026-10-16
+Use the existing GitHub repository https://github.com/Ratenne/ravirgo.git and main branch. The user has connected production auto-deployment to GitHub pushes. Commit from the local ravirgo repository root. Do not create or deploy GPT Sites/Sites previews unless the user explicitly requests them again. Preserve the user's SEO and verification edits from origin/main.

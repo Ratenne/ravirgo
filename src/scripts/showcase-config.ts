@@ -1,7 +1,7 @@
 /** Path controls use the existing scene's world coordinates. +Y is up. */
 export const showcaseConfig = {
- wheelPixelsPerCycle: 3200,
- dragPixelsPerCycle: 1400,
+ wheelViewportHeightsPerCycle: 4, // One full route per four browser viewport heights of wheel input.
+ dragStageWidthsPerCycle: 1, // One full route per one stage width of horizontal drag.
  initialProgress: .56,
  cyclePause: .12, // Hidden interval between offstage exit and the next entry.
  core: {x:0,z:0},
@@ -19,5 +19,5 @@ export const showcaseConfig = {
   mobile: {distance:21,height:10,azimuth:.72,target:[0,1.5,0] as const,fov:44},
   mobileFitRadius:6.8,
  },
- quality: {desktopDpr:1.5,mobileDpr:1,bloomStrength:.18,mobileBloomStrength:.09,bloomRadius:.4,bloomThreshold:1.8},
+ quality: {desktopDpr:2,mobileDpr:1.5,desktopSamples:4,mobileSamples:2,slowFrameMs:65,bloomStrength:.18,mobileBloomStrength:.09,bloomRadius:.4,bloomThreshold:1.8},
 } as const;
