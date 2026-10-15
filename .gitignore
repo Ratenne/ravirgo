@@ -1,0 +1,26 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+.env
+.env.*
+!.env.example
+!.env.sample
+*.local
+*.log
+*.pem
+*.key
+.openai/
+qa-*.png
+
+.taste-skill/
+.impeccable/
+coverage/
+playwright-report/
+test-results/
+
+# Local image-generation records and unused reference assets
+public/assets/**/*.webp.json
+public/assets/*.prompt.txt
+public/assets/original-reference.png
+public/assets/brand/ravirgo-symbol-original.png

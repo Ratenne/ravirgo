@@ -1,0 +1,37 @@
+---
+import '../styles/global.css';
+import Brand from '../components/Brand.astro';
+---
+<!doctype html>
+<html lang="ko">
+<head>
+ <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+ <meta name="theme-color" content="#081321"/><link rel="icon" href="/assets/brand/ravirgo-symbol.webp"/><meta name="description" content="처녀자리에서 시작된 빛. RAVIRGO는 일상을 밝히는 유용한 기술을 만듭니다. PricePulse와 영수증 OCR을 만나보세요."/>
+ <title>RAVIRGO 소개 — 처녀자리에서 시작된 빛</title>
+ <link rel="canonical" href="https://ravirgo.com/about"/>
+ <link rel="preload" href="/assets/sky.webp" as="image"/>
+</head>
+<body>
+<a class="skip-link" href="/#services">메인 서비스로 바로 이동</a>
+<header class="header"><Brand/><nav aria-label="메인 메뉴"><a href="/about" aria-current="page">RAVIRGO 소개</a><a href="/#services">서비스 <span>↗</span></a></nav></header>
+<main id="top">
+<section class="experience" id="story" aria-label="처녀자리에서 시작된 빛, 스크롤 경험">
+ <div class="stage">
+  <div class="sky-fallback"></div><canvas class="canvas-back" aria-hidden="true"></canvas><canvas class="canvas-front" aria-hidden="true"></canvas>
+  <div class="night-veil"></div><div class="horizon-bloom"></div><div class="vignette"></div>
+  <svg class="sky-art" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+   <defs><filter id="glow" x="-150%" y="-150%" width="400%" height="400%"><feGaussianBlur stdDeviation="5"/></filter><radialGradient id="starlight"><stop stop-color="#fff9dd"/><stop offset=".15" stop-color="#ffd692" stop-opacity=".8"/><stop offset="1" stop-color="#efb35c" stop-opacity="0"/></radialGradient><linearGradient id="beam-light" x1="0" x2="0" y1="1" y2="0"><stop stop-color="#fff7da"/><stop offset="1" stop-color="#e9ba78" stop-opacity=".3"/></linearGradient></defs>
+   <g class="dust"></g><g class="radiance"></g><g class="ray"><path class="ray-halo" d="M1146 622 L1146 366"/><path class="ray-core" d="M1146 622 L1146 366"/><circle class="ray-tip" cx="1146" cy="366" r="16" fill="url(#starlight)"/></g>
+   <g class="constellation"></g>
+   <g class="spica-label"><path d="M1160 366h34" stroke="#d6b68a" stroke-width=".5"/><text x="1204" y="370">SPICA</text><text x="1204" y="388" class="star-coordinate">α VIRGINIS</text></g>
+  </svg>
+  <div class="hero-copy"><p class="eyebrow"><span></span> A NEW LIGHT. A NEW POSSIBILITY.</p><div class="intro-copy"><h2>모든 빛에는<br/>시작이 있다<span class="gold-dot">.</span></h2><p>고요한 하늘, 하나의 별에서 시작되는 이야기.</p></div><div class="reveal-copy"><h1>RAVIRGO</h1><p class="tagline">LIGHT BEGINS FROM VIRGO</p><p class="brand-description">처녀자리에서 시작된 빛,<br/>일상을 밝히는 기술이 되다.</p><a class="discover" href="/#services">우리의 빛을 만나보세요 <span>↗</span></a></div></div>
+  <div class="side-note">RADIUS + VIRGO <span>—</span> THE ORIGIN OF LIGHT</div>
+  <div class="experience-ui"><div class="scene-meta"><span class="scene-number">01 <i>/ 05</i></span><div><p class="scene-title">THE SILENCE</p><p class="scene-description">빛이 태어나기 전</p></div></div><a class="scroll-cue" href="/#services"><span class="scroll-line"></span> SCROLL TO EXPLORE</a><div class="progress-control"><label for="journey">THE JOURNEY <output id="percent">0%</output></label><input id="journey" type="range" min="0" max="100" value="0" aria-label="스크롤 경험 진행률"/></div></div>
+ </div>
+</section>
+<section class="origin"><span class="origin-symbol" aria-hidden="true">✦</span><p class="eyebrow">OUR PHILOSOPHY</p><h2>작은 빛이 만드는<br/>새로운 가능성.</h2><p>광선을 뜻하는 Radius와 처녀자리 Virgo.<br/>RAVIRGO는 하나의 빛에서 시작해<br/>더 나은 일상의 가능성을 발견합니다.</p><a href="/">전체 서비스로 <span>↑</span></a></section>
+</main>
+<footer><Brand/><p>LIGHT BEGINS FROM VIRGO</p><span>© {new Date().getFullYear()} RAVIRGO</span></footer>
+<script>import '../scripts/experience';</script>
+</body></html>
