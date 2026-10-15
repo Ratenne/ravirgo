@@ -11,4 +11,4 @@ RAVIRGO는 광선을 뜻하는 **Radius**와 처녀자리 **Virgo**에서 이름
 ## 서비스
 
 - [PricePulse](https://price-pulse.ravirgo.com) — GPU·CPU·노트북의 가격 흐름을 살펴보는 서비스
-- [영수증 OCR](https://reciept-to-excel.ravirgo.com/) — 영수증 정보를 엑셀로 정리하는 도구
+- [영수증 OCR](https://receipt-to-excel.ravirgo.com/) — 영수증 정보를 엑셀로 정리하는 도구
