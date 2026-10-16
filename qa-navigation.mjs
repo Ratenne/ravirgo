@@ -14,7 +14,12 @@ try{
   if(i%2)await page.goBack();else await page.locator('.site-header nav a[href="/"]').click();
   await page.waitForURL(baseURL);
  }
+ for(let i=0;i<2;i++){
+  const link=page.locator('.launch-link').nth(i),destination=new URL(await link.getAttribute('href')).href;
+  await page.route(destination+'**',route=>route.fulfill({contentType:'text/html',body:'Service destination'}));
+  await link.click();await page.waitForURL(destination);await page.goBack();await page.waitForURL(baseURL);
+ }
  await page.waitForTimeout(500);assert.deepEqual(errors,[]);
- const result={nativeNavigationCycles:6,archiveLoadsNoWebGLBundle:true,errors};
+ const result={nativeNavigationCycles:6,externalServiceLinks:2,archiveLoadsNoWebGLBundle:true,errors};
  writeFileSync('docs/qa/navigation.json',JSON.stringify(result,null,2));console.log(result);
 }finally{await browser.close();}
