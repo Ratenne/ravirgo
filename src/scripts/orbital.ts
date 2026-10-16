@@ -62,9 +62,9 @@ export async function mountOrbital(host:HTMLElement,resumeProgress:number=config
   composer.addPass(blend);composer.addPass(new OutputPass());fxaa=undefined;if(samples===0){fxaa=new ShaderPass(FXAAShader);composer.addPass(fxaa);host.dataset.antialias='FXAA fallback';}
  }
  function renderScene(){
-  // Bloom only the fixed emitter. Metal highlights and service labels never enter its mask.
+  // Bloom authored light strips and the core; reflected metal and labels stay out of the mask.
   const background=scene.background;scene.background=new THREE.Color(0);
-  scene.traverse(object=>{const mesh=object as THREE.Mesh;if(mesh.isMesh&&mesh!==set.coreEmitter){maskedMaterials.set(mesh,mesh.material);mesh.material=bloomBlack;}const sprite=object as THREE.Sprite;if(sprite.isSprite){maskedSprites.set(sprite,sprite.visible);sprite.visible=false;}});
+  scene.traverse(object=>{const mesh=object as THREE.Mesh;if(mesh.isMesh&&!mesh.userData.bloom){maskedMaterials.set(mesh,mesh.material);mesh.material=bloomBlack;}const sprite=object as THREE.Sprite;if(sprite.isSprite){maskedSprites.set(sprite,sprite.visible);sprite.visible=false;}});
   try{bloomComposer!.render();}finally{scene.background=background;for(const [mesh,material] of maskedMaterials)mesh.material=material;for(const [sprite,visible] of maskedSprites)sprite.visible=visible;maskedMaterials.clear();maskedSprites.clear();}
   composer!.render();
  }
@@ -84,17 +84,18 @@ export async function mountOrbital(host:HTMLElement,resumeProgress:number=config
  function applyProgress(value:number){progress=value;
   // Unbounded input preserves exact reversal; wrapping happens in the offstage gap.
   for(const {service,index,station} of entries){const local=path.modelProgress(progress,index),sample=path.sample(local);phases.set(service.slug,{...sample,local});station.group.position.copy(sample.position);station.group.rotation.y=0;station.group.visible=local>=0&&local<=1&&selectedSlugs.has(service.slug);const fade=THREE.MathUtils.smoothstep(local,0,.035)*(1-THREE.MathUtils.smoothstep(local,.965,1));for(const {material,opacity} of fading.get(service.slug)!){const transparent=fade<1||opacity<1;if(material.transparent!==transparent){material.transparent=transparent;material.needsUpdate=true;}material.opacity=opacity*fade;}}
+  set.updateConnections(new Set(entries.filter(({service})=>phases.get(service.slug)?.phase==='orbit').map(({service})=>service.slug)));
   const cycle=path.modelProgress(progress,0)/path.period;progressFill.style.transform=`scaleX(${cycle})`;progressBar.setAttribute('aria-valuenow',String(Math.round(cycle*100)));
   host.dataset.progress=String(progress);host.dataset.timing=JSON.stringify({entryEnd:path.entryEnd,orbitEnd:path.orbitEnd,gap:path.gap,period:path.period});renderer.shadowMap.needsUpdate=true;invalidate();
  }
  function invalidate(){if(!raf&&!disposed&&!lost&&visible&&!document.hidden)raf=requestAnimationFrame(frame);}
  function frame(){raf=0;if(disposed||lost||!visible||document.hidden)return;scene.updateMatrixWorld();
   // DOM names stay crisp and accessible; project their anchors through the same camera.
-  for(const {service,station} of entries){const label=labels.get(service.slug)!,world=station.group.localToWorld(labelPositions.get(service.slug)!.set(0,1.2,1.35)),projected=world.clone().project(camera);
+  for(const {service,station} of entries){const label=labels.get(service.slug)!,world=station.group.localToWorld(labelPositions.get(service.slug)!.set(0,.7,1.35)),projected=world.clone().project(camera);
    const x=(projected.x*.5+.5)*host.clientWidth,y=(-projected.y*.5+.5)*host.clientHeight;
    let show=station.group.visible&&phases.get(service.slug)?.phase==='orbit'&&projected.z>=-1&&projected.z<=1&&x>=0&&x<=host.clientWidth&&y>=0&&y<=host.clientHeight;
    if(show){pointer.set(projected.x,projected.y);raycaster.setFromCamera(pointer,camera);raycaster.far=camera.position.distanceTo(world)-.08;
-    const obstruction=raycaster.intersectObjects(deck.children.filter(object=>object!==station.group),true).some(hit=>{let object:THREE.Object3D|null=hit.object;while(object){if(!object.visible)return false;object=object.parent;}const mesh=hit.object as THREE.Mesh;const mats=Array.isArray(mesh.material)?mesh.material:[mesh.material];return mats.some(m=>m?.visible&&m.opacity>.7);});show=!obstruction;raycaster.far=Infinity;
+    const obstruction=raycaster.intersectObjects(deck.children.filter(object=>object!==station.group&&object.userData.stationSlug!==service.slug),true).some(hit=>{let object:THREE.Object3D|null=hit.object;while(object){if(!object.visible)return false;object=object.parent;}const mesh=hit.object as THREE.Mesh;const mats=Array.isArray(mesh.material)?mesh.material:[mesh.material];return mats.some(m=>m?.visible&&m.opacity>.7);});show=!obstruction;raycaster.far=Infinity;
    }
    const half=(mobile()?120:166)/2,clamped=THREE.MathUtils.clamp(x,half+12,host.clientWidth-half-12);
    label.hidden=!show;label.style.transform=`translate3d(${clamped}px,${y}px,0) translate(-50%,-50%)`;label.style.zIndex=String(Math.max(1,Math.round(100-camera.position.distanceTo(world))));
@@ -106,7 +107,7 @@ export async function mountOrbital(host:HTMLElement,resumeProgress:number=config
   // Ignore shader warmup. Reduce resolution only after three sustained slow windows.
   if(warmupFrames>0){warmupFrames--;}else{totalCost+=performance.now()-begin;samples++;if(samples===30){slowWindows=totalCost/samples>config.quality.slowFrameMs?slowWindows+1:0;const floor=mobile()?1.25:1.5;if(slowWindows>=3&&cap>floor){cap=floor;host.dataset.quality='balanced';resize();slowWindows=0;}samples=0;totalCost=0;}}
   // Small declarative diagnostics make actual transforms, occlusion depth and parking testable.
-  host.dataset.orbit=JSON.stringify(entries.map(({service,station})=>{const p=station.group.position;const projected=new THREE.Vector3(p.x,p.y+2,p.z).project(camera);const distance=camera.position.distanceTo(p);const label=labelScreens.get(service.slug)!;const phase=phases.get(service.slug)!;return {slug:service.slug,visible:station.group.visible,phase:phase.phase,segment:phase.segment,local:phase.local,x:p.x,y:p.y,z:p.z,yaw:station.group.rotation.y,distance,screenX:(projected.x*.5+.5)*host.clientWidth,screenY:(-.5*projected.y+.5)*host.clientHeight,labelX:label.x,labelY:label.y,labelVisible:label.visible};}));
+  host.dataset.orbit=JSON.stringify(entries.map(({service,station})=>{const p=station.group.position;const projected=station.sculpture.localToWorld(new THREE.Vector3(service.exhibit==='receipt'?-.2:.2,1.8,service.exhibit==='receipt'?.36:0)).project(camera);const distance=camera.position.distanceTo(p);const label=labelScreens.get(service.slug)!;const phase=phases.get(service.slug)!;return {slug:service.slug,visible:station.group.visible,phase:phase.phase,segment:phase.segment,local:phase.local,connected:station.group.visible&&phase.phase==='orbit',x:p.x,y:p.y,z:p.z,yaw:station.group.rotation.y,distance,screenX:(projected.x*.5+.5)*host.clientWidth,screenY:(-.5*projected.y+.5)*host.clientHeight,labelX:label.x,labelY:label.y,labelVisible:label.visible};}));
   host.dataset.fixed=JSON.stringify({deck:deck.rotation.toArray().slice(0,3),core:set.coreEmitter.getWorldPosition(new THREE.Vector3()).toArray(),camera:camera.position.toArray()});
   host.dataset.dpr=String(renderer.getPixelRatio());host.dataset.renderCount=String(renderCount);host.dataset.ready='true';host.dataset.state='webgl';host.dataset.bloom=mobile()?'quarter-resolution':'half-resolution';
  }

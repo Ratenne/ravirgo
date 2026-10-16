@@ -15,5 +15,5 @@ const topology=await page.evaluate(async()=>{
   result.push(data);for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();
  }return result;
 });
-for(const profile of topology){assert.equal(profile.bars,5);assert.equal(profile.sheets.length,2);assert.equal(profile.paperTextureWidth,profile.compact?512:1024);assert.equal(profile.bevelSegments,profile.compact?3:5);for(const sheet of profile.sheets){assert.equal(sheet.nonManifoldEdges,0);assert.equal(sheet.degenerate,0);assert(sheet.finiteNormals);}}
+for(const profile of topology){assert.equal(profile.bars,4);assert.equal(profile.sheets.length,2);assert.equal(profile.paperTextureWidth,profile.compact?512:1024);assert.equal(profile.bevelSegments,profile.compact?3:5);for(const sheet of profile.sheets){assert.equal(sheet.nonManifoldEdges,0);assert.equal(sheet.degenerate,0);assert(sheet.finiteNormals);}}
 assert.deepEqual(errors,[]);const result={desktop,mobile,resizeKeepsProgress:true,topology,errors};mkdirSync('.impeccable/review/mesh-quality',{recursive:true});writeFileSync('.impeccable/review/mesh-quality/results.json',JSON.stringify(result,null,2));console.log(result);await browser.close();

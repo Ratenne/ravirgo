@@ -13,9 +13,9 @@
 @media(max-width:360px){.scene-controls{flex-wrap:wrap}.scene-hint{bottom:110px}}
 
 /* Header-aware scroll stage. Static/reduced/disabled modes do not retain the scroll runway. */
-:root{--header-height:88px}.site-header{position:sticky;top:0;z-index:10}.showcase{position:relative}.showcase.is-active{height:auto}.showcase .workbench{height:clamp(420px,40vw,610px);position:relative;top:0}.showcase.is-static .workbench{height:clamp(280px,36vw,480px);position:relative;top:0}.showcase.is-static{height:auto}.path-progress{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--line);pointer-events:none}.path-progress span{display:block;width:100%;height:100%;background:var(--gold);transform:scaleX(0);transform-origin:left}.showcase canvas{touch-action:pan-y;cursor:default}.showcase canvas[data-hover=true]{cursor:pointer}.showcase .scene-hint{bottom:26px}.showcase .scene-controls{bottom:18px}.directory{scroll-margin-top:calc(var(--header-height) + 16px)}
+:root{--header-height:88px}.site-header{position:sticky;top:0;z-index:10}.showcase{position:relative}.showcase.is-active{height:auto}.showcase .workbench{height:min(56.28vw,calc(100svh - 130px));min-height:420px;position:relative;top:0}.showcase.is-static .workbench{min-height:0;height:clamp(280px,36vw,480px);position:relative;top:0}.showcase.is-static{height:auto}.path-progress{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--line);pointer-events:none}.path-progress span{display:block;width:100%;height:100%;background:var(--gold);transform:scaleX(0);transform-origin:left}.showcase canvas{touch-action:pan-y;cursor:default}.showcase canvas[data-hover=true]{cursor:pointer}.showcase .scene-hint{bottom:26px}.showcase .scene-controls{bottom:18px}.directory{scroll-margin-top:calc(var(--header-height) + 16px)}
 @media(max-width:600px){:root{--header-height:76px}.showcase.is-static .workbench{height:280px}.showcase .scene-hint{bottom:70px}}
-@media(prefers-reduced-motion:reduce){.showcase{height:auto!important}.showcase .workbench{height:clamp(280px,36vw,480px);position:relative;top:0}}
+@media(prefers-reduced-motion:reduce){.showcase{height:auto!important}.showcase .workbench{min-height:0;height:clamp(280px,36vw,480px);position:relative;top:0}}
 
 /* Native hash links skip the long runway and preserve browser history/focus. */
 :root{scroll-behavior:auto}
