@@ -86,7 +86,8 @@ export async function mountOrbital(host:HTMLElement,resumeProgress:number=config
  makeComposer();
  function positionCamera(){const view=mobile()?config.camera.mobile:config.camera.desktop;camera.fov=view.fov;
   const target=new THREE.Vector3(...view.target),position=new THREE.Vector3(Math.sin(view.azimuth)*view.distance,view.height,Math.cos(view.azimuth)*view.distance);
-  if(mobile()){const offset=position.clone().sub(target),halfH=Math.atan(Math.tan(THREE.MathUtils.degToRad(view.fov/2))*camera.aspect);offset.setLength(Math.max(offset.length(),config.camera.mobileFitRadius/Math.sin(halfH)));position.copy(target).add(offset);}
+  // Fit the stage on portrait tablets too; wide desktop framing stays unchanged.
+  const offset=position.clone().sub(target),halfH=Math.atan(Math.tan(THREE.MathUtils.degToRad(view.fov/2))*camera.aspect);offset.setLength(Math.max(offset.length(),config.camera.fitRadius/Math.sin(halfH)));position.copy(target).add(offset);
   camera.position.copy(position);camera.lookAt(target);camera.updateProjectionMatrix();camera.updateMatrixWorld();
  }
  function resize(){if(disposed||lost)return;const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;if(mobilePath!==mobile()){mobilePath=mobile();path=createShowcasePath({mobile:mobilePath});if(!manualQuality)setQuality(initialQuality(memory,mobile()));else{makeComposer();applyProgress(progress);}}
