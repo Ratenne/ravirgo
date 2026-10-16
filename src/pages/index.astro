@@ -2,8 +2,9 @@
 import '../styles/home.css';
 import Brand from '../components/Brand.astro';
 import Arrow from '../components/Arrow.astro';
-import {showcaseConfig} from '../scripts/showcase-config';
-import { services, categories, featuredServices } from '../data/services';
+import SearchControls from '../components/SearchControls.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import { orderedServices as services, featuredServices } from '../data/services';
 const structuredData = {
  '@context':'https://schema.org','@graph':[
   {'@type':'WebSite','@id':'https://ravirgo.com/#website',name:'RAVIRGO',url:'https://ravirgo.com/',inLanguage:'ko'},
@@ -22,43 +23,36 @@ const structuredData = {
 <meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="RAVIRGO 서비스 | PricePulse · 영수증 OCR"/><meta name="twitter:description" content="가격 흐름 분석과 영수증 OCR 등 RAVIRGO의 서비스를 만나보세요."/><meta name="twitter:image" content="https://ravirgo.com/assets/orbital-poster.webp"/><script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g,'\\u003c')}/>
 </head><body>
 <a class="skip-link" href="#services">서비스 목록으로 이동</a>
-<header class="site-header"><Brand/><nav aria-label="메인 메뉴"><a href="/#services" aria-current="page">서비스</a><a href="/about">RAVIRGO 소개</a></nav></header>
+<header class="site-header"><Brand/><nav aria-label="메인 메뉴"><a href="/#services" aria-current="page">서비스</a><a href="/archive/" data-preserve-search>아카이브</a><a href="/about">소개</a></nav></header>
 <main>
 <h1 class="sr-only">RAVIRGO 서비스</h1>
 <section class="showcase" data-showcase aria-label="스크롤 서비스 쇼케이스"><div class="workbench">
  <img class="scene-poster" src="/assets/orbital-poster.webp" alt="" width="1672" height="941" fetchpriority="high"/>
- <div id="orbital-view" class="orbital-view" data-featured={JSON.stringify(featuredServices.map(s=>({slug:s.slug,name:s.name,url:s.url,exhibit:s.exhibit})))}>
-  <div class="model-labels" aria-label="대표 서비스">{featuredServices.slice(0,showcaseConfig.maxFeatured).map(s=><a class="model-label" data-model-label={s.slug} href={s.url} hidden draggable="false">{s.name}<span aria-hidden="true">↗</span></a>)}</div>
+ <div id="orbital-view" class="orbital-view" data-featured={JSON.stringify(featuredServices)}>
+  <div class="model-labels" aria-label="대표 서비스">{featuredServices.map(s=><a class="model-label" data-model-label={s.slug} href={s.url} hidden draggable="false">{s.name}<span aria-hidden="true">↗</span><small>{s.description}</small></a>)}</div>
  </div>
  <div class="scene-scrim" aria-hidden="true"></div>
- <div class="discovery" id="discovery">
-  <form class="service-search" role="search" action="#services" data-search hidden>
-   <label for="service-query" class="sr-only">서비스 검색</label>
-   <svg viewBox="0 0 24 24" width="23" height="23" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-   <input type="search" id="service-query" name="q" placeholder="서비스 검색" autocomplete="off" maxlength="100"/>
-   <button type="submit" aria-label="검색 결과로 이동"><Arrow/></button>
-  </form>
-  <div class="category-filters" role="group" aria-label="서비스 카테고리" data-filters hidden><button type="button" data-category="all" aria-pressed="true">전체</button>{categories.map(c=><button type="button" data-category={c.id} aria-pressed="false">{c.label}</button>)}</div>
- </div>
- <p class="scene-hint" hidden>휠 또는 가로 드래그로 서비스 둘러보기</p>
+ <div class="showcase-caption"><span class="section-index">01 / SPATIAL SHOWCASE</span><p>서비스를 공간에서 둘러보세요.</p></div>
+ <a class="archive-shortcut" href="/archive/" data-preserve-search>전체 아카이브 <span aria-hidden="true">↗</span></a>
+ <p class="scene-hint" hidden>휠 · 가로 드래그로 탐색 / 아래 여백에서 페이지 스크롤</p>
  <div class="scene-controls" data-scene-controls hidden>
   <a class="scene-list-link" href="#services">서비스 목록 ↓</a>
+  <button type="button" data-step="-1" aria-label="이전 서비스">←</button><button type="button" data-step="1" aria-label="다음 서비스">→</button>
+  <label class="quality-control">품질 <select data-quality aria-label="3D 품질"><option value="high">High</option><option value="balanced">Balanced</option><option value="low">Low</option></select></label>
   <button type="button" data-scene="toggle" aria-pressed="true">3D 끄기</button>
  </div>
  <div class="path-progress" hidden role="progressbar" aria-label="서비스 이동 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
  <p class="scene-state sr-only" role="status" aria-live="polite"></p>
 </div></section>
-<section class="directory" id="services" aria-label="전체 서비스">
- <div class="directory-heading"><h2>전체 서비스</h2><output id="result-count" aria-live="polite" aria-atomic="true">서비스 {services.length}개</output></div>
- <div class="service-list">{services.map(s=><article class="service-row" data-service={s.slug} data-category={s.category} data-search-text={[s.name,s.description,s.categoryLabel,...s.searchTerms].join(' ')}>
-  <a class={`service-image ${s.exhibit??''}`} href={s.url} aria-label={`${s.name} 열기`} tabindex="-1"><img src="/assets/orbital-poster.webp" alt="" width="320" height="170" loading="lazy"/></a>
-  <div class="service-info"><div class="service-title"><h3><a href={s.url}>{s.name}</a></h3><span class="service-category">{s.categoryLabel}</span></div><p>{s.description}</p><a class="service-domain" href={s.url}>{new URL(s.url).hostname}</a></div>
-  <div class="service-actions"><a class="launch-link" href={s.url}>{s.name} 열기 <Arrow/></a><a class="detail-link" href={`/services/${s.slug}/`}>서비스 소개</a></div>
- </article>)}</div>
+<section class="directory cinematic-directory" id="services" aria-label="전체 서비스">
+ <div class="directory-heading"><div><span class="section-index">02 / SERVICE DIRECTORY</span><h2>전체 서비스</h2></div><output id="result-count" aria-live="polite" aria-atomic="true">서비스 {services.length}개</output></div>
+ <SearchControls/>
+ <div class="service-list">{services.map((s,index)=><ServiceCard service={s} index={index}/>)}</div>
+ <a class="archive-more" href="/archive/" data-preserve-search>서비스 아카이브 둘러보기 <Arrow/></a>
  <div class="empty-state" hidden><p>조건에 맞는 서비스가 없습니다.</p><button type="button" data-reset>전체 서비스 보기</button></div>
  <noscript><p class="no-script">전체 서비스는 위 링크에서 바로 이용할 수 있습니다.</p></noscript>
 </section>
 </main>
-<footer class="site-footer"><Brand/><nav aria-label="하단 메뉴"><a href="/#services">서비스</a><a href="/about">RAVIRGO 소개</a></nav><small>© {new Date().getFullYear()} RAVIRGO</small></footer>
-<script>import '../scripts/directory';</script>
+<footer class="site-footer"><Brand/><nav aria-label="하단 메뉴"><a href="/#services">서비스</a><a href="/archive/" data-preserve-search>아카이브</a><a href="/about">소개</a></nav><small>© {new Date().getFullYear()} RAVIRGO</small></footer>
+<script>import '../scripts/directory';import '../scripts/cinematic';</script>
 </body></html>

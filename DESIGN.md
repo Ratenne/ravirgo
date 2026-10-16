@@ -226,3 +226,18 @@ Only featured services with an exhibit are represented, capped at four in both s
 - **Don't** treat the two current services as a permanent capacity limit.
 - **Don't** make the 3D scene the only path to a service.
 - **Don't** claim image parity or performance results without measured review evidence.
+
+## Current spatial/archive update — 2026-10-16
+
+This section supersedes the historical whole-turntable rotation, GPU prop and
+four-featured cap described above. The current camera and architectural set are
+fixed; input drives individual normalized service anchors through entry, CCW
+orbit, exit and an offstage gap. Centre and core align at (0,0), radius 4.6.
+
+The opening stage fills the viewport. Search/categories move into the semantic
+service directory beneath it. `/archive/` uses service-specific navy/brass posters,
+a responsive editorial grid, restrained perspective hover and accessible real
+links. The existing brand symbol, local fonts and service facts remain. Reduced
+motion removes transitions and uses the static service experience. Full current
+implementation and visual verification criteria: docs/spatial-archive.md and
+docs/qa-results.md.

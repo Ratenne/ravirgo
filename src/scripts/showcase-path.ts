@@ -1,8 +1,9 @@
 import * as THREE from 'three';
-import {showcaseConfig as c} from './showcase-config';
+import {showcaseConfig as c} from './showcase-config.ts';
 export type PathPhase='before'|'entry'|'orbit'|'exit'|'after';
-/** Horizontal closed orbit with a wider foreground arc around the offset core. */
+/** Horizontal closed orbit around the core; radii remain configurable. */
 class ShowcaseOrbit extends THREE.Curve<THREE.Vector3>{
+ constructor(){super();}
  getPoint(t:number,target=new THREE.Vector3()){
   const a=c.orbitStartAngle+t*Math.PI*2,front=THREE.MathUtils.clamp(-Math.sin(a)/.6,0,1);
   const r=THREE.MathUtils.lerp(c.orbitRadius,c.orbitFrontRadius,front*front*(3-2*front));
@@ -26,7 +27,7 @@ export function createShowcasePath({mobile=false}={}){
  for(const curve of [entry,exitA,exitB,exit]){curve.arcLengthDivisions=1600;curve.updateArcLengths();}
  const sum=c.phaseRatios.entry+c.phaseRatios.orbit+c.phaseRatios.exit;
  const entryEnd=c.phaseRatios.entry/sum,orbitEnd=entryEnd+c.phaseRatios.orbit/sum;
- // Keep the two rest positions opposite while the foreground arc bends around the core.
+ // Preserve the original opposite rest positions for a two-service catalogue.
  const gap=c.modelPhaseGap*(orbitEnd-entryEnd);
  function sample(local:number){
   // Wheel accumulation and cycle wrapping can differ by a sub-pixel input rounding at the dock.

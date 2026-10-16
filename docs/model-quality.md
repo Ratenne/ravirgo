@@ -13,3 +13,11 @@
 `npm run dev` 이후 `npm test`와 `node qa-model-quality.mjs`를 실행합니다. 후자는 설치된 macOS Chrome을 사용합니다. HiDPI에서 실제 캔버스 해상도, MSAA, 데스크톱↔모바일 리사이즈와 진행률 보존을 검사합니다. 두 품질 프로필의 종이 메시에서 비정상 면적 삼각형·2개 면에 공유되지 않는 모서리·유효하지 않은 법선을 검사했습니다. 모두 0이거나 정상입니다. 이는 자체 교차나 완전한 물리 정확성 검사까지 포함하지 않습니다.
 
 기존 반복·역방향·정지·검색·모델 본체 클릭·HTML 이름표 키보드 이동·모바일 제스처 검사를 통과했습니다. `.impeccable/review/mesh-quality/`에 전후 확대 화면, 데스크톱/모바일 화면과 검사 결과가 있습니다. 실제 휴대전화와 Safari, GPU 메모리·발열은 이번 검사에서 확인하지 않았습니다.
+
+## 2026-10-16 registry update
+
+기존 procedural 생성기는 실제 코드의 4개 가격 막대와 2개 solid printed receipt를
+유지한다(상단의 5개 표기는 문서 오류). 공통 Anchor에서 회전 후 Bounding Box를 측정해
+정규화하며 GLB/기본 poster도 같은 받침대를 사용한다. 품질은 High/Balanced/Low로 분리했다.
+캐시 소유권/Abort와 테스트 범위는 [spatial-archive.md](spatial-archive.md)를 참조한다.
+기존 검증 기록은 과거 결과이며 이번 작업의 결과는 [qa-results.md](qa-results.md)에 별도 기록한다.

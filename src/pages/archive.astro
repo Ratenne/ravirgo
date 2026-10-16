@@ -1,0 +1,27 @@
+---
+import '../styles/home.css';
+import Brand from '../components/Brand.astro';
+import SearchControls from '../components/SearchControls.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import {orderedServices as services} from '../data/services';
+const title='서비스 아카이브 | RAVIRGO',description='RAVIRGO의 모든 서비스를 살펴보세요. 카테고리와 키워드로 필요한 서비스를 찾을 수 있습니다.';
+const schema={'@context':'https://schema.org','@type':'CollectionPage',name:title,url:'https://ravirgo.com/archive/',description,mainEntity:{'@type':'ItemList',itemListElement:services.map((s,i)=>({'@type':'ListItem',position:i+1,name:s.name,url:`https://ravirgo.com/services/${s.slug}/`,description:s.description}))}};
+---
+<!doctype html><html lang="ko"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>{title}</title><meta name="description" content={description}/><link rel="canonical" href="https://ravirgo.com/archive/"/><meta name="theme-color" content="#08121e"/>
+<meta name="naver-site-verification" content="f074f5a710ef5c0985b775fd29c07ac12773be6c"/><meta name="robots" content="index,follow,max-image-preview:large"/>
+<link rel="icon" href="/assets/brand/ravirgo-symbol.webp"/><meta property="og:type" content="website"/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:url" content="https://ravirgo.com/archive/"/><meta property="og:image" content="https://ravirgo.com/assets/orbital-poster.webp"/><meta property="og:locale" content="ko_KR"/><meta name="twitter:card" content="summary_large_image"/>
+<script type="application/ld+json" set:html={JSON.stringify(schema).replace(/</g,'\\u003c')}/>
+</head><body class="archive-page"><a class="skip-link" href="#services">서비스 목록으로 이동</a>
+<header class="site-header"><Brand/><nav aria-label="메인 메뉴"><a href="/" data-preserve-search>공간 탐색</a><a href="/archive/" data-preserve-search aria-current="page">아카이브</a><a href="/about">소개</a></nav></header>
+<main>
+ <div class="archive-intro"><span class="section-index">RAVIRGO / ALL SERVICES</span><div class="archive-title"><h1>Service<br/><span>Archive.</span></h1><p>서비스의 모든 장면.<br/>필요한 도구로 바로 이어집니다.</p></div><div class="archive-rule"><span>전체 서비스 컬렉션</span><span>{String(services.length).padStart(2,'0')} SERVICES</span></div></div>
+ <section class="directory" id="services" aria-label="서비스 아카이브"><div class="directory-heading"><h2 class="sr-only">전체 서비스</h2><output id="result-count" aria-live="polite" aria-atomic="true">서비스 {services.length}개</output></div><SearchControls/>
+ <div class="archive-grid">{services.map((s,index)=><ServiceCard service={s} index={index} archive/>)}</div>
+ <div class="empty-state" hidden><p>조건에 맞는 서비스가 없습니다.</p><button type="button" data-reset>전체 서비스 보기</button></div>
+ <noscript><p class="no-script">전체 서비스는 위 링크에서 바로 이용할 수 있습니다.</p></noscript>
+ </section>
+</main>
+<footer class="site-footer"><Brand/><nav aria-label="하단 메뉴"><a href="/" data-preserve-search>공간 탐색</a><a href="/about">RAVIRGO 소개</a></nav><small>© {new Date().getFullYear()} RAVIRGO</small></footer>
+<script>import '../scripts/directory';import '../scripts/cinematic';</script>
+</body></html>

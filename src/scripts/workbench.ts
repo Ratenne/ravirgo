@@ -1,20 +1,20 @@
 import * as THREE from 'three';
 import {showcaseConfig} from './showcase-config';
-import {buildServiceSculpture} from './service-models';
+import {defaultModel,normalizeModel,modelSpec} from './model-registry';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-type Featured={slug:string;exhibit:'price'|'receipt'};
+type Featured={slug:string;exhibit?:'price'|'receipt'};
 /** Authored architectural set, derived from the approved orbital-v2 model silhouettes. */
-export function buildWorkbench(scene:THREE.Scene,renderer:THREE.WebGLRenderer,featured:Featured[],invalidate:()=>void){
+export function buildWorkbench(scene:THREE.Scene,renderer:THREE.WebGLRenderer,featured:Featured[],invalidate:()=>void,low=false){
  const geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>(),textures=new Set<THREE.Texture>();
  const own=<T extends THREE.BufferGeometry>(g:T)=>{geometries.add(g);return g;};
  const material=(color:string,roughness:number,metalness:number)=>{const m=new THREE.MeshPhysicalMaterial({color,roughness,metalness});materials.add(m);return m;};
- const stone=material('#263244',.46,.12),edgeStone=material('#1b293b',.5,.12),gold=material('#c69750',.4,.92),silver=material('#87939d',.28,.92),darkSilver=material('#424f60',.32,.88),paper=material('#e4d7ba',.88,0),bronze=material('#8d795b',.38,.85);
+ const stone=material('#263244',.62,.06),edgeStone=material('#1b293b',.66,.06),gold=material('#c69750',.4,.92),silver=material('#87939d',.28,.92),darkSilver=material('#424f60',.32,.88),paper=material('#e4d7ba',.88,0),bronze=material('#8d795b',.38,.85);
  const lightMat=material('#ffcc76',.4,.1);lightMat.emissive.set('#ffb953');lightMat.emissiveIntensity=2.5;gold.anisotropy=.45;gold.anisotropyRotation=Math.PI/2;gold.clearcoat=.18;gold.clearcoatRoughness=.3;gold.envMapIntensity=.55;
  // Seeded multi-scale stone maps: broad mineral structure, etched veins and fine pores.
- const size=512;let seed=381;
+ const size=low?128:512;let seed=381;
  const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
  const fields=[4,12,35,100].map(n=>({n,data:Float32Array.from({length:(n+1)*(n+1)},random)}));
  const noise=(x:number,y:number,f:typeof fields[number])=>{const px=x*f.n,py=y*f.n,ix=Math.floor(px),iy=Math.floor(py),a=px-ix,b=py-iy,u=a*a*(3-2*a),v=b*b*(3-2*b),at=(xx:number,yy:number)=>f.data[yy*(f.n+1)+xx];return THREE.MathUtils.lerp(THREE.MathUtils.lerp(at(ix,iy),at(ix+1,iy),u),THREE.MathUtils.lerp(at(ix,iy+1),at(ix+1,iy+1),u),v);};
@@ -32,9 +32,9 @@ export function buildWorkbench(scene:THREE.Scene,renderer:THREE.WebGLRenderer,fe
  const world=new THREE.Group(),turntable=new THREE.Group();scene.add(world);world.add(turntable);
  function mesh(geometry:THREE.BufferGeometry,mat:THREE.Material,parent:THREE.Object3D,x=0,y=0,z=0,shadows=true){const m=new THREE.Mesh(geometry,mat);m.position.set(x,y,z);m.castShadow=shadows;m.receiveShadow=shadows;m.userData.bloom=mat===lightMat;parent.add(m);return m;}
  function box(w:number,h:number,d:number,mat:THREE.Material,parent:THREE.Object3D,x=0,y=0,z=0,bevel=.025){return mesh(own(new RoundedBoxGeometry(w,h,d,2,bevel)),mat,parent,x,y,z);}
- function cylinder(radius:number,h:number,mat:THREE.Material,parent:THREE.Object3D,x=0,y=0,z=0){const bevel=Math.min(.04,h*.28),profile=[new THREE.Vector2(0,-h/2),new THREE.Vector2(radius-bevel,-h/2)];for(let i=1;i<=6;i++){const angle=i/6*Math.PI/2;profile.push(new THREE.Vector2(radius-bevel+Math.sin(angle)*bevel,-h/2+bevel-Math.cos(angle)*bevel));}profile.push(new THREE.Vector2(radius,h/2-bevel));for(let i=1;i<=6;i++){const angle=i/6*Math.PI/2;profile.push(new THREE.Vector2(radius-bevel+Math.cos(angle)*bevel,h/2-bevel+Math.sin(angle)*bevel));}profile.push(new THREE.Vector2(0,h/2));const g=own(new THREE.LatheGeometry(profile,innerWidth<600?128:192));const p=g.attributes.position,uv=g.attributes.uv;for(let i=0;i<p.count;i++){if(Math.abs(p.getY(i))>h/2-.04){uv.setXY(i,p.getX(i)*.18,p.getZ(i)*.18);}else uv.setXY(i,Math.atan2(p.getX(i),p.getZ(i))*radius*.18,p.getY(i)*.5);}return mesh(g,mat,parent,x,y,z);}
- function ring(r:number,y:number,mat:THREE.Material,parent:THREE.Object3D,x=0,z=0,tube=.015){const m=mesh(own(new THREE.TorusGeometry(r,tube,12,192)),mat,parent,x,y,z,false);m.rotation.x=-Math.PI/2;return m;}
- function arcSlab(outer:number,inner:number,h:number,y:number,mat:THREE.Material,parent:THREE.Object3D,start=0,end=Math.PI){const shape=new THREE.Shape();shape.absarc(0,0,outer,start,end,false);shape.lineTo(Math.cos(end)*inner,Math.sin(end)*inner);shape.absarc(0,0,inner,end,start,true);shape.closePath();const g=own(new THREE.ExtrudeGeometry(shape,{depth:h,bevelEnabled:true,bevelSize:.015,bevelThickness:.015,bevelSegments:2,curveSegments:96}));const m=mesh(g,mat,parent,0,y,0);m.rotation.x=-Math.PI/2;return m;}
+ function cylinder(radius:number,h:number,mat:THREE.Material,parent:THREE.Object3D,x=0,y=0,z=0){const bevel=Math.min(.04,h*.28),profile=[new THREE.Vector2(0,-h/2),new THREE.Vector2(radius-bevel,-h/2)];for(let i=1;i<=6;i++){const angle=i/6*Math.PI/2;profile.push(new THREE.Vector2(radius-bevel+Math.sin(angle)*bevel,-h/2+bevel-Math.cos(angle)*bevel));}profile.push(new THREE.Vector2(radius,h/2-bevel));for(let i=1;i<=6;i++){const angle=i/6*Math.PI/2;profile.push(new THREE.Vector2(radius-bevel+Math.cos(angle)*bevel,h/2-bevel+Math.sin(angle)*bevel));}profile.push(new THREE.Vector2(0,h/2));const g=own(new THREE.LatheGeometry(profile,low?48:innerWidth<600?96:160));const p=g.attributes.position,uv=g.attributes.uv;for(let i=0;i<p.count;i++){if(Math.abs(p.getY(i))>h/2-.04){uv.setXY(i,p.getX(i)*.18,p.getZ(i)*.18);}else uv.setXY(i,Math.atan2(p.getX(i),p.getZ(i))*radius*.18,p.getY(i)*.5);}return mesh(g,mat,parent,x,y,z);}
+ function ring(r:number,y:number,mat:THREE.Material,parent:THREE.Object3D,x=0,z=0,tube=.015){const m=mesh(own(new THREE.TorusGeometry(r,tube,low?6:12,low?64:160)),mat,parent,x,y,z,false);m.rotation.x=-Math.PI/2;return m;}
+ function arcSlab(outer:number,inner:number,h:number,y:number,mat:THREE.Material,parent:THREE.Object3D,start=0,end=Math.PI){const shape=new THREE.Shape();shape.absarc(0,0,outer,start,end,false);shape.lineTo(Math.cos(end)*inner,Math.sin(end)*inner);shape.absarc(0,0,inner,end,start,true);shape.closePath();const g=own(new THREE.ExtrudeGeometry(shape,{depth:h,bevelEnabled:true,bevelSize:.015,bevelThickness:.015,bevelSegments:2,curveSegments:low?24:72}));const m=mesh(g,mat,parent,0,y,0);m.rotation.x=-Math.PI/2;return m;}
  // The poster's terrace fills the foreground; the circular deck sits inside it.
  cylinder(13,.38,edgeStone,world,0,-.66,0);
  cylinder(10.8,.32,stone,world,0,-.34,0);
@@ -80,7 +80,7 @@ export function buildWorkbench(scene:THREE.Scene,renderer:THREE.WebGLRenderer,fe
  }
  const lintel=box(20.2,.5,1.25,edgeStone,world,0,6.4,-5.45,.025);lintel.rotation.z=-.025;
  RectAreaLightUniformsLib.init();
- for(let i=0;i<9;i++){
+ for(let i=0;i<(low?0:9);i++){
   const a=.08+i/8*(Math.PI-.16),x=Math.cos(a)*9.47,z=-Math.sin(a)*9.47;
   if(i%3!==1){
    arcSlab(9.49,9.46,.025,.26,lightMat,world,a-.075,a+.075);
@@ -88,7 +88,7 @@ export function buildWorkbench(scene:THREE.Scene,renderer:THREE.WebGLRenderer,fe
    light.position.set(x*.985,.34,z*.985);light.lookAt(x,1.1,z);world.add(light);
   }
  }
- for(const side of [-1,1]){
+ for(const side of (low?[]:[-1,1])){
   const light=new THREE.RectAreaLight('#ffae58',18,.65,.16);
   light.position.set(side*8.55,2.04,-4.86);light.lookAt(side*8.55,3.2,-5.45);world.add(light);
  }
@@ -108,9 +108,10 @@ export function buildWorkbench(scene:THREE.Scene,renderer:THREE.WebGLRenderer,fe
   const entry=featured[index],group=new THREE.Group();const a=featured.length<=2?(index===0?-1.08:1.05):-1.3+index*.85;const x=Math.sin(a)*3.35,z=-Math.cos(a)*2.6;group.position.set(x,.1,z);group.scale.setScalar(1);world.updateMatrixWorld();turntable.add(group);
   cylinder(1.16,.28,edgeStone,group,0,.62,0);cylinder(1.12,.025,gold,group,0,.775,0);cylinder(1.09,.035,stone,group,0,.805,0);const highlight=ring(1.145,.49,lightMat,group,0,0,.025);
   const accent=new THREE.PointLight('#ffc477',4,4.5,2);accent.position.set(0,.58,0);group.add(accent);
-  const sculpture=new THREE.Group();const paperScale=entry.exhibit==='receipt'?.88:1,sculptureHeight=entry.exhibit==='receipt'?.58:.6;sculpture.position.y=.84-.94*sculptureHeight;sculpture.scale.set(paperScale,sculptureHeight,paperScale);sculpture.rotation.y=entry.exhibit==='receipt'?-.75:-.15;group.add(sculpture);
-  buildServiceSculpture(entry.exhibit,sculpture,{geometries,materials,textures,gold,silver,darkSilver,paper,renderer,compact:innerWidth<600||(navigator as Navigator&{deviceMemory?:number}).deviceMemory!<=4});
-  stations.set(entry.slug,{group,highlight,light:accent,type:entry.exhibit,sculpture});
+  const sculpture=new THREE.Group();sculpture.position.y=.84;group.add(sculpture);
+  const placeholder=normalizeModel(defaultModel(),modelSpec({slug:entry.slug} as never));sculpture.add(placeholder);
+  placeholder.traverse(o=>{const m=o as THREE.Mesh;if(m.isMesh){geometries.add(m.geometry);for(const mat of Array.isArray(m.material)?m.material:[m.material])materials.add(mat);}});
+  stations.set(entry.slug,{group,highlight,light:accent,type:entry.exhibit??'poster',sculpture});
  }
  // Swept rectangular bands join each moving podium to the fixed core.
  // Reuse buffers on input; there is no independent animation or detached connector.
@@ -157,5 +158,5 @@ export function buildWorkbench(scene:THREE.Scene,renderer:THREE.WebGLRenderer,fe
  // Full-canvas background stretching formerly put the horizon below the deck.
  sky.repeat.set(1,1.7);sky.offset.set(0,-1.01);sky.updateMatrix();
  textures.add(sky);scene.background=sky;scene.backgroundIntensity=1;scene.fog=null;
- return {geometries,materials,textures,turntable,stations,coreEmitter,updateConnections,restoreEnvironment,disposeEnvironment:()=>environment.dispose()};
+ return {geometries,materials,textures,turntable,world,stations,key,coreEmitter,updateConnections,restoreEnvironment,disposeEnvironment:()=>environment.dispose()};
 }
