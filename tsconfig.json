@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "ES2023", "module": "ESNext", "moduleResolution": "Bundler",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"], "strict": true,
+    "noEmit": true, "skipLibCheck": true, "allowImportingTsExtensions": true,
+    "types": ["vite/client"]
+  },
+  "include": ["src/data/**/*.ts", "src/scripts/orbital.ts", "src/scripts/workbench.ts", "src/scripts/service-models.ts", "src/scripts/showcase-*.ts", "src/scripts/model-*.ts", "src/scripts/quality.ts", "src/scripts/directory.ts", "src/scripts/scene-controller.ts", "src/scripts/cinematic.ts"]
+}

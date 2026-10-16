@@ -31,3 +31,10 @@ Chrome 1440×900 및 390×844 모바일 에뮬레이션으로 검사했습니다
 
 
 최신 메시·렌더링 품질 설정과 검증은 [model-quality.md](model-quality.md)를 참조하세요.
+
+## 2026-10-16 superseding implementation
+
+위 문서의 반지름/최대 개수/compact 화면은 과거 기록이다. 현재는 중심과 core `(0,0)`,
+반지름 4.6, 전체 featured와 동시 활성 3/2/1 모델을 분리한 반복 schedule을 사용한다.
+고정 카메라, 후면 Bézier 진입/퇴장, 실제 HTML 이름표와 URL은 유지한다.
+자세한 입력 정책과 계산식은 [spatial-archive.md](spatial-archive.md)를 참조한다.

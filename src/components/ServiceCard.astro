@@ -1,0 +1,11 @@
+---
+import type {Service} from '../data/services';
+import Arrow from './Arrow.astro';
+interface Props {service:Service;index:number;archive?:boolean}
+const {service:s,index,archive=false}=Astro.props;
+---
+<article class:list={['service-row',{'archive-card':archive}]} data-service={s.slug} data-category={s.category} data-search-text={[s.name,s.description,s.categoryLabel,...s.searchTerms].join(' ')} style={`--card-delay:${Math.min(index,8)*60}ms`}>
+ <a class="service-image" href={`/services/${s.slug}/`} aria-label={`${s.name} 소개`} tabindex="-1"><img src={s.poster??'/assets/orbital-poster.webp'} alt="" width="800" height="600" loading="lazy"/><span class="poster-index" aria-hidden="true">{String(index+1).padStart(2,'0')}</span></a>
+ <div class="service-info"><div class="service-title"><h3><a href={`/services/${s.slug}/`}>{s.name}</a></h3><span class="service-category">{s.categoryLabel}</span></div><p>{s.description}</p><a class="service-domain" href={s.url}>{new URL(s.url).hostname}</a></div>
+ <div class="service-actions"><a class="launch-link" href={s.url}>{s.name} 열기 <Arrow/></a><a class="detail-link" href={`/services/${s.slug}/`}>서비스 소개</a></div>
+</article>

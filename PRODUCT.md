@@ -65,3 +65,15 @@ Preserve established models' identity and all interactions. Service sculptures u
 
 ### Publishing policy — 2026-10-16
 Use the existing GitHub repository https://github.com/Ratenne/ravirgo.git and main branch. The user has connected production auto-deployment to GitHub pushes. Commit from the local ravirgo repository root. Do not create or deploy GPT Sites/Sites previews unless the user explicitly requests them again. Preserve the user's SEO and verification edits from origin/main.
+
+### Immersive showcase + archive — 2026-10-16
+
+This request supersedes the compact-layout and fixed-four-featured limits above.
+Use a viewport-sized spatial showcase and an independent `/archive/`, retaining the
+complete `/#services` HTML directory. Services are registered once in services.ts;
+procedural, GLB and generic/poster models share normalized anchors and a bounded
+reference-counted cache. High/Balanced/Low budgets are independent of total featured
+membership. Keep the fixed camera, input-only CCW motion, reverse traversal, HTML
+labels/links, SEO and Naver verification. Work on a separate branch; no main push,
+merge, production deployment or Sites deployment without the user's approval.
+See docs/spatial-archive.md for the current runtime contract.

@@ -1,0 +1,13 @@
+---
+import {categories} from '../data/services';
+import Arrow from './Arrow.astro';
+---
+<div class="directory-tools">
+ <form class="service-search" role="search" action="#services" data-search hidden>
+  <label for="service-query" class="sr-only">서비스 검색</label>
+  <svg viewBox="0 0 24 24" width="23" height="23" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.5"/></svg>
+  <input type="search" id="service-query" name="q" placeholder="서비스명, 키워드로 검색" autocomplete="off" maxlength="100"/>
+  <button type="submit" aria-label="검색 결과로 이동"><Arrow/></button>
+ </form>
+ <div class="category-filters" role="group" aria-label="서비스 카테고리" data-filters hidden><button type="button" data-category="all" aria-pressed="true">전체</button>{categories.map(c=><button type="button" data-category={c.id} aria-pressed="false">{c.label}</button>)}</div>
+</div>
