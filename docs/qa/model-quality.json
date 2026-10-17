@@ -1,0 +1,83 @@
+{
+  "desktop": {
+    "dpr": 2,
+    "antialias": "MSAA 4x",
+    "progress": 0.675,
+    "width": 1440,
+    "cssWidth": 720
+  },
+  "mobile": {
+    "dpr": 1.5,
+    "antialias": "MSAA 2x",
+    "progress": 0.675,
+    "width": 585,
+    "cssWidth": 390
+  },
+  "resizeKeepsProgress": true,
+  "topology": [
+    {
+      "compact": false,
+      "bars": 4,
+      "bevelSegments": 5,
+      "paperTextureWidth": 1024,
+      "sheets": [
+        {
+          "vertices": 9650,
+          "triangles": 19296,
+          "degenerate": 0,
+          "nonManifoldEdges": 0,
+          "finiteNormals": true
+        },
+        {
+          "vertices": 9650,
+          "triangles": 19296,
+          "degenerate": 0,
+          "nonManifoldEdges": 0,
+          "finiteNormals": true
+        }
+      ]
+    },
+    {
+      "compact": true,
+      "bars": 4,
+      "bevelSegments": 3,
+      "paperTextureWidth": 512,
+      "sheets": [
+        {
+          "vertices": 3842,
+          "triangles": 7680,
+          "degenerate": 0,
+          "nonManifoldEdges": 0,
+          "finiteNormals": true
+        },
+        {
+          "vertices": 3842,
+          "triangles": 7680,
+          "degenerate": 0,
+          "nonManifoldEdges": 0,
+          "finiteNormals": true
+        }
+      ]
+    }
+  ],
+  "registry": {
+    "glbLoaded": true,
+    "glbAlpha": true,
+    "fallback": true,
+    "shared": {
+      "entries": 1,
+      "leases": 2,
+      "loading": 0
+    },
+    "afterFirst": 0,
+    "afterDispose": 3,
+    "defaultSize": [
+      1.7500000000000002,
+      1.3548388051937106,
+      0.22580646234491836
+    ],
+    "base": 0,
+    "aborted": true
+  },
+  "errors": []
+}
