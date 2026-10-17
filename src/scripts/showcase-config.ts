@@ -18,7 +18,7 @@ export const showcaseConfig = {
  camera: {
   desktop: {distance:22,height:6.644,azimuth:0,target:[0,1.325,0] as const,fov:25.947},
   mobile: {distance:21,height:11,azimuth:0,target:[0,1.6,0] as const,fov:44},
-  mobileFitRadius:6.8,
+  fitRadius:6.8,
  },
  quality: {desktopDpr:2,mobileDpr:1.5,desktopSamples:4,mobileSamples:2,slowFrameMs:65,bloomStrength:.35,mobileBloomStrength:.18,bloomRadius:.4,bloomThreshold:1.1},
 } as const;

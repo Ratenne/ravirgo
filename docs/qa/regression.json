@@ -1,0 +1,33 @@
+{
+  "reversalAndRepeat": true,
+  "phases": true,
+  "demandRendering": true,
+  "searchAndFilter": true,
+  "toggleResume": true,
+  "keyboardStep": true,
+  "wheelEscapeAndHistory": true,
+  "modelClicks": [
+    "https://price-pulse.ravirgo.com/",
+    "https://receipt-to-excel.ravirgo.com/"
+  ],
+  "nativeLabelLink": true,
+  "contextRecovery": true,
+  "toggleAllocations": [
+    {
+      "geometries": 135,
+      "textures": 27
+    },
+    {
+      "geometries": 135,
+      "textures": 27
+    }
+  ],
+  "lowProfile": true,
+  "archiveAndHistory": true,
+  "mobileGestures": true,
+  "reduced": true,
+  "webgl": true,
+  "saveData": true,
+  "noJS": true,
+  "errors": []
+}

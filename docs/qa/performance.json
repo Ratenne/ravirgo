@@ -1,0 +1,89 @@
+{
+  "environment": {
+    "viewport": [
+      1440,
+      900
+    ],
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "gpu": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "dpr": 1
+  },
+  "method": "Reset progress to 0.675 per profile. 12 animation frames with identical wheel input; discard first 4. Software WebGL is not a physical-device benchmark.",
+  "results": [
+    {
+      "frames": 8,
+      "meanMs": 13949.9375,
+      "p95Ms": 14529.20000000298,
+      "meanSubmitMs": 4.862500000745058,
+      "profileAfter": "high",
+      "diagnostics": {
+        "frames": 0,
+        "meanFrameMs": 0,
+        "submitMs": 3.7000000029802322,
+        "queueWaitMs": 14458,
+        "memory": {
+          "geometries": 135,
+          "textures": 27
+        },
+        "cache": {
+          "entries": 2,
+          "leases": 2,
+          "loading": 0
+        },
+        "active": 2
+      },
+      "requested": "high",
+      "fps": 0.07168490898256713
+    },
+    {
+      "frames": 8,
+      "meanMs": 13244.299999998882,
+      "p95Ms": 14426.60000000894,
+      "meanSubmitMs": 4.0374999940395355,
+      "profileAfter": "balanced",
+      "diagnostics": {
+        "frames": 0,
+        "meanFrameMs": 0,
+        "submitMs": 4.299999997019768,
+        "queueWaitMs": 13826.39999999106,
+        "memory": {
+          "geometries": 135,
+          "textures": 27
+        },
+        "cache": {
+          "entries": 2,
+          "leases": 2,
+          "loading": 0
+        },
+        "active": 2
+      },
+      "requested": "balanced",
+      "fps": 0.07550417915632267
+    },
+    {
+      "frames": 8,
+      "meanMs": 11185.175000000745,
+      "p95Ms": 11781.20000000298,
+      "meanSubmitMs": 1.825000001117587,
+      "profileAfter": "low",
+      "diagnostics": {
+        "frames": 0,
+        "meanFrameMs": 0,
+        "submitMs": 1.1000000089406967,
+        "queueWaitMs": 10816.09999999404,
+        "memory": {
+          "geometries": 132,
+          "textures": 11
+        },
+        "cache": {
+          "entries": 2,
+          "leases": 1,
+          "loading": 0
+        },
+        "active": 1
+      },
+      "requested": "low",
+      "fps": 0.08940405492090499
+    }
+  ]
+}

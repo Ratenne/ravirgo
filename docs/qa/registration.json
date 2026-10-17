@@ -1,0 +1,10 @@
+{
+  "singleSourceRegistration": true,
+  "archive": true,
+  "searchFilter": true,
+  "genericDetail": true,
+  "sitemap": true,
+  "structuredData": true,
+  "featuredWithoutModel": true,
+  "naverPreserved": true
+}
