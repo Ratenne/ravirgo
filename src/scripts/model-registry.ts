@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type {Service} from '../data/services';
+import {buildFlowad} from './flowad-model';
 import {buildServiceSculpture} from './service-models';
 
 export type ModelSpec=ReturnType<typeof modelSpec>;
@@ -18,11 +19,12 @@ export function defaultModel(){
  return group;
 }
 export function proceduralModel(source:string,renderer:THREE.WebGLRenderer,compact:boolean){
- if(source!=='price'&&source!=='receipt')return defaultModel();
+ if(source!=='price'&&source!=='receipt'&&source!=='flowad')return defaultModel();
  const group=new THREE.Group(),geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>(),textures=new Set<THREE.Texture>();
  const gold=new THREE.MeshPhysicalMaterial({color:'#c69750',roughness:.42,metalness:.88}),silver=gold.clone(),darkSilver=gold.clone(),paper=new THREE.MeshPhysicalMaterial({color:'#e4d7ba',roughness:.88});
  silver.color.set('#87939d');darkSilver.color.set('#424f60');
- buildServiceSculpture(source,group,{geometries,materials,textures,gold,silver,darkSilver,paper,renderer,compact});
+ if(source==='flowad')buildFlowad(group,geometries,materials,compact);
+ else buildServiceSculpture(source,group,{geometries,materials,textures,gold,silver,darkSilver,paper,renderer,compact});
  // Dispose unused palette members too; the cache owns every factory allocation.
  group.userData.extraMaterials=[gold,silver,darkSilver,paper,...materials];
  return group;
