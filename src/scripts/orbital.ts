@@ -178,7 +178,19 @@ export async function mountOrbital(host:HTMLElement,resumeProgress:number=config
  addEventListener('pageshow',e=>{if(e.persisted){visible=true;resize();}},{signal});
  function dispose(){if(disposed)return;disposed=true;events.abort();for(const slot of pool)release(slot);cache.dispose();if(raf)cancelAnimationFrame(raf);resizeObserver.disconnect();intersection.disconnect();disposeComposer();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();set.disposeEnvironment();renderer.dispose();canvas.remove();for(const label of labels.values())label.hidden=true;host.dataset.ready='false';section.classList.remove('is-active');section.classList.add('is-static');hint.hidden=true;progressBar.hidden=true;host.dataset.state='disposed';}
  host.dataset.quality=quality;const qualitySelect=section.querySelector<HTMLSelectElement>('select[data-quality]');if(qualitySelect)qualitySelect.value=quality;host.dataset.ready='false';applyProgress(resumeProgress);resize();
+ try{
  await Promise.all([set.skyReady,...pendingModels]);
- if(!disposed&&!lost){if(raf)cancelAnimationFrame(raf);raf=0;visible=true;frame();}
+ // An inactive tab cannot present a frame; wait until it can be rendered.
+ if(document.hidden)await new Promise<void>(resolve=>{const onVisibility=()=>{if(!document.hidden){document.removeEventListener('visibilitychange',onVisibility);resolve();}};document.addEventListener('visibilitychange',onVisibility);});
+ if(disposed||lost)throw new Error('WebGL unavailable during initialization');
+ if(raf)cancelAnimationFrame(raf);raf=0;visible=true;requestedAt=performance.now();frame();
+ // Rendering submits work asynchronously. A WebGL fence confirms the GPU has
+ // finished the first complete frame, including uploaded textures and targets.
+ const gl=renderer.getContext() as WebGL2RenderingContext;
+ const fence=gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE,0);
+ if(!fence)throw new Error('Could not synchronize the first WebGL frame');
+ gl.flush();
+ try{await new Promise<void>((resolve,reject)=>{const poll=()=>{if(disposed||lost||gl.isContextLost()){reject(new Error('WebGL context lost'));return;}const result=gl.clientWaitSync(fence,0,0);if(result===gl.WAIT_FAILED){reject(new Error('WebGL synchronization failed'));return;}if(result===gl.TIMEOUT_EXPIRED){setTimeout(poll,16);return;}resolve();};poll();});}finally{gl.deleteSync(fence);}
  return dispose;
+ }catch(error){dispose();throw error;}
 }
