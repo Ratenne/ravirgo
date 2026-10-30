@@ -13,6 +13,6 @@ async function start(resume:number=showcaseConfig.initialProgress){const current
  try{const m=await import('./orbital');if(current!==revision)return;const dispose=await m.mountOrbital(host,resume);if(current!==revision){dispose();return;}sceneDispose=dispose;if(host.dataset.state==='fallback'){staticMode('fallback');return;}toggle.disabled=false;toggle.textContent='3D 끄기';toggle.setAttribute('aria-pressed','true');}catch{sceneDispose?.();sceneDispose=undefined;staticMode('fallback');}}
 toggle.addEventListener('click',()=>{if(toggle.disabled)return;if(toggle.getAttribute('aria-pressed')==='true'){savedProgress=Number(host.dataset.progress??0);disabled=true;try{sessionStorage.setItem('ravirgo-3d-disabled','1');}catch{}++revision;sceneDispose?.();sceneDispose=undefined;staticMode('disabled');}else{disabled=false;try{sessionStorage.removeItem('ravirgo-3d-disabled');}catch{}void start(savedProgress);}});
 motion.addEventListener('change',()=>{savedProgress=Number(host.dataset.progress??0);void start(savedProgress);});
-void start();
+void start().finally(()=>document.documentElement.classList.remove('is-loading'));
 
 }

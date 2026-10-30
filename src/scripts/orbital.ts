@@ -21,13 +21,13 @@ export async function mountOrbital(host:HTMLElement,resumeProgress:number=config
  const progressBar=section.querySelector<HTMLElement>('.path-progress')!,progressFill=progressBar.querySelector<HTMLElement>('span')!;
  const status=section.querySelector<HTMLElement>('.scene-state')!;
  const reduced=matchMedia('(prefers-reduced-motion: reduce)'),mobile=()=>host.clientWidth<600;
- const memory=(navigator as Navigator&{deviceMemory?:number}).deviceMemory??8;
+ const memory=(navigator as Navigator&{deviceMemory?:number}).deviceMemory??4;
  const saveData=(navigator as Navigator&{connection?:{saveData:boolean}}).connection?.saveData;
  const fallback=(reason:string)=>{section.classList.add('is-static');section.classList.remove('is-active');host.dataset.state=reason;status.textContent='전체 서비스 목록을 표시합니다.';};
  if(reduced.matches||saveData){fallback(reduced.matches?'reduced-motion':'save-data');return ()=>{};}
  const featured=(JSON.parse(host.dataset.featured??'[]') as Featured[]);
  let renderer:THREE.WebGLRenderer;
- try{renderer=new THREE.WebGLRenderer({antialias:memory>4,alpha:false,powerPreference:'high-performance'});}catch{fallback('fallback');return ()=>{};}
+ try{renderer=new THREE.WebGLRenderer({antialias:false,alpha:false,powerPreference:'high-performance'});}catch{fallback('fallback');return ()=>{};}
  let disposed=false,lost=false,visible=true,raf=0,progress=0,renderCount=0,requestedAt=0;
  let manualQuality=false;let quality:Quality=initialQuality(memory,mobile(),saveData);let profile=profiles[quality];const monitor=new PerformanceMonitor();let lastFrame=0;const frameTimes:number[]=[];
  let composer:EffectComposer|undefined,bloomComposer:EffectComposer|undefined,bloom:UnrealBloomPass|undefined,fxaa:ShaderPass|undefined;
@@ -35,7 +35,7 @@ export async function mountOrbital(host:HTMLElement,resumeProgress:number=config
  section.hidden=false;section.classList.remove('is-static');section.classList.add('is-active');controls.hidden=false;hint.hidden=false;progressBar.hidden=false;
  const canvas=renderer.domElement;host.append(canvas);canvas.setAttribute('aria-hidden','true');
  renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.86;
- renderer.shadowMap.enabled=memory>4&&innerWidth>=600;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.shadowMap.autoUpdate=false;
+ renderer.shadowMap.enabled=false;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.shadowMap.autoUpdate=false;
  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(36,1,.1,120);
  const set=buildWorkbench(scene,renderer,Array.from({length:3},(_,i)=>({slug:`slot-${i}`})),invalidate,quality==='low');
  const {geometries,materials,textures,turntable:deck,stations}=set;
@@ -47,8 +47,10 @@ export async function mountOrbital(host:HTMLElement,resumeProgress:number=config
  // Each reusable station owns its materials. Cache instances own separate cloned materials.
  for(const slot of pool){const clones=new Map<THREE.Material,THREE.Material>();slot.station.group.traverse(o=>{const m=o as THREE.Mesh;if(m.isMesh){const copy=(mat:THREE.Material)=>{if(!clones.has(mat)){const c=mat.clone();clones.set(mat,c);materials.add(c);}return clones.get(mat)!;};m.material=Array.isArray(m.material)?m.material.map(copy):copy(m.material);}});slot.station.group.visible=false;fading(slot);}
  function release(slot:typeof pool[number]){slot.version++;slot.controller.abort();slot.lease?.release();slot.lease=undefined;slot.service=undefined;slot.station.group.visible=false;slot.placeholder.visible=true;}
+ const pendingModels=new Set<Promise<void>>();
  function assign(slot:typeof pool[number],service:Featured){release(slot);slot.service=service;slot.station.light.intensity=4;slot.station.group.userData.modelState='loading';slot.controller=new AbortController();const version=slot.version;fading(slot);
-  void cache.acquire(service,slot.controller.signal).then(lease=>{if(disposed||version!==slot.version){lease.release();return;}slot.lease=lease;slot.placeholder.visible=false;slot.station.sculpture.add(lease.group);slot.station.group.userData.modelState=lease.status;fading(slot);applyProgress(progress);}).catch(()=>{if(!disposed&&version===slot.version){slot.station.group.userData.modelState='fallback';invalidate();}});
+  const pending=cache.acquire(service,slot.controller.signal).then(lease=>{if(disposed||version!==slot.version){lease.release();return;}slot.lease=lease;slot.placeholder.visible=false;slot.station.sculpture.add(lease.group);slot.station.group.userData.modelState=lease.status;fading(slot);applyProgress(progress);}).catch(()=>{if(!disposed&&version===slot.version){slot.station.group.userData.modelState='fallback';invalidate();}});
+  pendingModels.add(pending);void pending.finally(()=>pendingModels.delete(pending));
  }
  const selectedSlugs=new Set(featured.map(s=>s.slug));let mobilePath=mobile(),path=createShowcasePath({mobile:mobilePath});
  let schedule=createSchedule(featured.length,profile.active,path.gap);
@@ -176,5 +178,7 @@ export async function mountOrbital(host:HTMLElement,resumeProgress:number=config
  addEventListener('pageshow',e=>{if(e.persisted){visible=true;resize();}},{signal});
  function dispose(){if(disposed)return;disposed=true;events.abort();for(const slot of pool)release(slot);cache.dispose();if(raf)cancelAnimationFrame(raf);resizeObserver.disconnect();intersection.disconnect();disposeComposer();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();set.disposeEnvironment();renderer.dispose();canvas.remove();for(const label of labels.values())label.hidden=true;host.dataset.ready='false';section.classList.remove('is-active');section.classList.add('is-static');hint.hidden=true;progressBar.hidden=true;host.dataset.state='disposed';}
  host.dataset.quality=quality;const qualitySelect=section.querySelector<HTMLSelectElement>('select[data-quality]');if(qualitySelect)qualitySelect.value=quality;host.dataset.ready='false';applyProgress(resumeProgress);resize();
+ await Promise.all([set.skyReady,...pendingModels]);
+ if(!disposed&&!lost){if(raf)cancelAnimationFrame(raf);raf=0;visible=true;frame();}
  return dispose;
 }

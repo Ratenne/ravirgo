@@ -14,7 +14,7 @@ export function buildWorkbench(scene:THREE.Scene,renderer:THREE.WebGLRenderer,fe
  const stone=material('#263244',.62,.06),edgeStone=material('#1b293b',.66,.06),gold=material('#c69750',.4,.92),silver=material('#87939d',.28,.92),darkSilver=material('#424f60',.32,.88),paper=material('#e4d7ba',.88,0),bronze=material('#8d795b',.38,.85);
  const lightMat=material('#ffcc76',.4,.1);lightMat.emissive.set('#ffb953');lightMat.emissiveIntensity=2.5;gold.anisotropy=.45;gold.anisotropyRotation=Math.PI/2;gold.clearcoat=.18;gold.clearcoatRoughness=.3;gold.envMapIntensity=.55;
  // Seeded multi-scale stone maps: broad mineral structure, etched veins and fine pores.
- const size=low?128:512;let seed=381;
+ const size=low?128:256;let seed=381;
  const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
  const fields=[4,12,35,100].map(n=>({n,data:Float32Array.from({length:(n+1)*(n+1)},random)}));
  const noise=(x:number,y:number,f:typeof fields[number])=>{const px=x*f.n,py=y*f.n,ix=Math.floor(px),iy=Math.floor(py),a=px-ix,b=py-iy,u=a*a*(3-2*a),v=b*b*(3-2*b),at=(xx:number,yy:number)=>f.data[yy*(f.n+1)+xx];return THREE.MathUtils.lerp(THREE.MathUtils.lerp(at(ix,iy),at(ix+1,iy),u),THREE.MathUtils.lerp(at(ix,iy+1),at(ix+1,iy+1),u),v);};
@@ -153,10 +153,11 @@ export function buildWorkbench(scene:THREE.Scene,renderer:THREE.WebGLRenderer,fe
  }
  const key=new THREE.DirectionalLight('#ffe4bd',1.5);key.position.set(-4,8,2);key.castShadow=true;key.shadow.mapSize.set(2048,2048);Object.assign(key.shadow.camera,{left:-11,right:11,top:11,bottom:-11,near:.5,far:35});key.shadow.bias=-.0002;key.shadow.normalBias=.025;key.shadow.radius=3;scene.add(key);
  const fill=new THREE.HemisphereLight('#b5c8e1','#10151d',.75);scene.add(fill);const sunset=new THREE.DirectionalLight('#ffbf78',1.25);sunset.position.set(9,3,-7);scene.add(sunset);
- const sky=new THREE.TextureLoader().load('/assets/orbital-dusk.webp',invalidate);sky.colorSpace=THREE.SRGBColorSpace;
+ let resolveSky:()=>void;const skyReady=new Promise<void>(resolve=>{resolveSky=resolve;});
+ const sky=new THREE.TextureLoader().load('/assets/orbital-dusk.webp',()=>{invalidate();resolveSky();},undefined,()=>resolveSky());sky.colorSpace=THREE.SRGBColorSpace;
  // Compress the panorama into the opening above the parapet, with the sunset on the right.
  // Full-canvas background stretching formerly put the horizon below the deck.
  sky.repeat.set(1,1.7);sky.offset.set(0,-1.01);sky.updateMatrix();
  textures.add(sky);scene.background=sky;scene.backgroundIntensity=1;scene.fog=null;
- return {geometries,materials,textures,turntable,world,stations,key,coreEmitter,updateConnections,restoreEnvironment,disposeEnvironment:()=>environment.dispose()};
+ return {geometries,materials,textures,turntable,world,stations,key,coreEmitter,updateConnections,restoreEnvironment,skyReady,disposeEnvironment:()=>environment.dispose()};
 }
