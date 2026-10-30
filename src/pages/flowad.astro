@@ -1,0 +1,20 @@
+---
+import '../styles/home.css';
+import Brand from '../components/Brand.astro';
+---
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Flowad 드라이빙 코스 추천 서비스" />
+  <link rel="canonical" href="https://ravirgo.com/flowad/" />
+  <link rel="icon" href="/assets/brand/ravirgo-symbol.webp" />
+  <title>Flowad | RAVIRGO</title>
+</head>
+<body>
+  <header class="site-header"><Brand/><nav aria-label="메인 메뉴"><a href="/#services">서비스</a><a href="/about">RAVIRGO 소개</a></nav></header>
+  <main class="detail-main"><h1>Flowad</h1><p>드라이빙 코스 추천 서비스</p><p>새로운 길을 발견하는 드라이빙 코스 추천 서비스를 준비하고 있습니다.</p><a class="back-link" href="/#services">전체 서비스로 돌아가기</a></main>
+  <footer class="site-footer"><Brand/><nav aria-label="하단 메뉴"><a href="/#services">서비스</a><a href="/about">RAVIRGO 소개</a></nav><small>© {new Date().getFullYear()} RAVIRGO</small></footer>
+</body>
+</html>
