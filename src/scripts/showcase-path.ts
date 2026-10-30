@@ -16,7 +16,7 @@ class ShowcaseOrbit extends THREE.Curve<THREE.Vector3>{
  }
  getTangentAt(t:number,target=new THREE.Vector3()){return this.getTangent(t,target);}
 }
-export function createShowcasePath({mobile=false}={}){
+export function createShowcasePath({mobile=false,capacity=3}={}){
  const orbit=new ShowcaseOrbit(),join=orbit.getPoint(0),tangent=orbit.getTangent(0);
  // Exact shared endpoints and parallel tangent directions at entry→orbit→exit.
  const entry=new THREE.CubicBezierCurve3(new THREE.Vector3(...(mobile?c.entry.mobileStart:c.entry.start)),new THREE.Vector3(...c.entry.control),join.clone().addScaledVector(tangent,-c.entry.tangentLength),join.clone());
@@ -25,8 +25,9 @@ export function createShowcasePath({mobile=false}={}){
  const exitB=new THREE.CubicBezierCurve3(bendEnd.clone(),bendEnd.clone().add(bendEnd.clone().sub(bendControl)),new THREE.Vector3(...c.exit.control),new THREE.Vector3(...c.exit.end));
  const exit=new THREE.CurvePath<THREE.Vector3>();exit.add(exitA);exit.add(exitB);
  for(const curve of [entry,exitA,exitB,exit]){curve.arcLengthDivisions=1600;curve.updateArcLengths();}
- const sum=c.phaseRatios.entry+c.phaseRatios.orbit+c.phaseRatios.exit;
- const entryEnd=c.phaseRatios.entry/sum,orbitEnd=entryEnd+c.phaseRatios.orbit/sum;
+ const ratios=capacity>=4?{entry:.005,orbit:.99,exit:.005}:c.phaseRatios;
+ const sum=ratios.entry+ratios.orbit+ratios.exit;
+ const entryEnd=ratios.entry/sum,orbitEnd=entryEnd+ratios.orbit/sum;
  // Preserve the original opposite rest positions for a two-service catalogue.
  const gap=c.modelPhaseGap*(orbitEnd-entryEnd);
  function sample(local:number){

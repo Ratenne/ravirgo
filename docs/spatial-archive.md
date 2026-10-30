@@ -22,7 +22,7 @@
 - `src/data/services.ts`: 서비스의 단일 소스. order와 slug로 결정적인 정렬. featured 전체에 개수 제한을 두지 않는다.
 - `model-registry.ts`: 기존 procedural 생성기 선택, 일반 모델, 회전 후 Bounding Box 정규화. 받침대는 모델과 독립이며 지름 2.32, 모델은 최대 폭/깊이 1.75, 높이 1.8로 제한한다. 바닥을 y=0으로 맞춘 뒤 받침대 상면에 놓는다.
 - `model-loader.ts`: GLB fetch/parse, poster, procedural, 실패 fallback. 동일 설정은 하나의 pending promise와 prototype을 공유한다. 캐시는 geometry/texture를 소유하고 각 lease는 material 복제본만 소유한다. release는 material만 해제하고 참조가 없는 prototype은 LRU prune 또는 cache.dispose에서 해제한다. 로딩 AbortSignal과 슬롯 버전 토큰이 늦게 도착한 모델의 잘못된 부착을 막는다.
-- `workbench.ts`: 원형 석재 건축/발광체와 재사용 받침대 슬롯 3개. 엔진은 모델 내부 메시를 알 필요가 없다.
+- `workbench.ts`: 원형 석재 건축/발광체와 재사용 받침대 슬롯 5개. 엔진은 모델 내부 메시를 알 필요가 없다.
 - `showcase-schedule.ts`: 데이터 순서와 활성 GPU 예산 분리. 서비스당 Entry → Orbit → Exit → Offstage 순환. 입력 시간을 서비스 인덱스 간격만큼 지연한 뒤 전체 주기에 modulo한다. 음수에도 동일한 연산을 사용한다. 경계의 1e-10 오차는 offstage에서 정규화한다.
 - `orbital.ts`: 활성 슬롯 배정, 다음/이전 모델 preload, 가림을 고려한 raycast와 HTML 이름표, 입력, demand rendering 및 정리.
 - `quality.ts`: High/Balanced/Low. Bloom의 마스크 장면부터 High 1/2, Balanced 1/4 해상도로 렌더한다. CPU 제출 시간과 rAF 대기 시간의 30프레임 창 3개를 사용하며 초기 24프레임과 창 상위 10% 지연을 제외한다. 단발성 지연으로 전환하지 않는다. 정지 시 측정용 프레임을 추가하지 않는다.
@@ -35,7 +35,7 @@
 
 난간을 지나는 구간은 받침대의 전체 반지름으로 보수적으로 검사한다. 기존 진입/퇴장 높이는 이 범위에서 난간과 겹칠 수 있어 Bézier의 높이 제어점만 올렸다. 난간 상면 1.925에 대해 최소 받침대 하단은 desktop 진입 2.061, mobile 진입 2.281, 퇴장 2.215다. 계단과 측면 기둥은 공전 받침대 최대 반지름 5.76 밖에 있다. 접점과 공전 구간의 위치·높이는 유지한다.
 
-2개 이하의 서비스가 활성 예산 안에 들어오면 기존 .29 지연을 보존한다. 그 외에는 High .4, Balanced .72, Low 1.12 입력 시간 간격을 사용한다. 단순 1/예산 간격은 공전 시작/끝 부근에서 모델이 겹쳐 더 넓은 간격으로 조정했다. 전체 반복 주기는 max(1.12, 서비스 수 × 간격)이다. 입력 감도는 전체 서비스 수와 무관하게 기존 1.12 경로 단위를 유지한다. 필터링은 데이터 정렬을 유지하며 결과를 압축하고, 해제하면 같은 입력 시간에서 원래 순서를 복원한다.
+2개 이하의 서비스가 활성 예산 안에 들어오면 기존 .29 지연을 보존한다. 그 외에는 High는 최대 5개를 위해 약 .2, Balanced는 .72, Low는 1.12 입력 시간 간격을 사용한다. High에서는 원판 위 이동 구간을 늘리고 진입과 퇴장 시 페이드한다. 단순 1/예산 간격은 공전 시작/끝 부근에서 모델이 겹쳐 더 넓은 간격으로 조정했다. 전체 반복 주기는 High에서 max(1, 서비스 수 × 간격), 그 외에는 max(1.12, 서비스 수 × 간격)이다. 입력 감도는 전체 서비스 수와 무관하게 기존 1.12 경로 단위를 유지한다. 필터링은 데이터 정렬을 유지하며 결과를 압축하고, 해제하면 같은 입력 시간에서 원래 순서를 복원한다.
 
 가로 스와이프는 공전, 세로 스와이프는 native scroll이다. 캔버스 하단 90px 여백의 휠, Alt+휠, UI 컨트롤의 휠은 페이지 스크롤로 빠져나온다. Ctrl+휠 확대를 가로채지 않는다. 실제 `#services` 앵커, 아카이브 링크, 이전/다음 버튼과 실제 서비스 `<a>`가 키보드 경로다. 숨겨진 모델은 raycast와 렌더에서 제외한다.
 
@@ -89,11 +89,11 @@ GLB는 `public/assets/models/`에 self-contained 파일을 넣고 `modelType:'gl
 
 | 프로필 | DPR 상한 | Bloom | MSAA | 그림자 | 활성 모델 |
 | --- | --- | --- | --- | --- | --- |
-| High | 2 | selective .30 | 최대 4 | 2048 | 최대 3 |
+| High | 2 | selective .30 | 최대 4 | 2048 | 최대 5 |
 | Balanced | 1.5 | selective .14 | 최대 2 | 1024 | 최대 2 |
 | Low | 1 | 없음 | native | 없음 | 최대 1, 일반 poster 모델 |
 
-메모리 ≤2GB는 Low, ≤4GB 또는 작은 화면은 Balanced, 정보가 없으면 일반 기본값을 사용한다. saveData와 reduced-motion은 정적 HTML/이미지 모드다. Low로 시작하면 건축 분할 수/텍스처 크기/area light 수도 축소한다. High에서 런타임 저하 시 기존 건축 geometry를 유지하되 후처리/그림자/모델 수를 줄인다.
+메모리 ≤2GB는 Low, 데스크톱에서 메모리 정보가 8GB 이상이면 High, 그 외에는 Balanced로 시작한다. 메모리 정보는 GPU 성능을 보장하지 않으며, 실행 중 프레임 저하가 지속되면 품질을 낮춘다. saveData와 reduced-motion은 정적 HTML/이미지 모드다. Low로 시작하면 건축 분할 수/텍스처 크기/area light 수도 축소한다. High에서 런타임 저하 시 기존 건축 geometry를 유지하되 후처리/그림자/모델 수를 줄인다.
 
 ## 검증과 제한
 

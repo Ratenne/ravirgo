@@ -1,10 +1,10 @@
 export const profiles={
- high:{dpr:2,bloom:.3,bloomScale:.5,samples:4,shadow:2048,active:3},
+ high:{dpr:2,bloom:.3,bloomScale:.5,samples:4,shadow:2048,active:5},
  balanced:{dpr:1.5,bloom:.14,bloomScale:.25,samples:2,shadow:1024,active:2},
  low:{dpr:1,bloom:0,bloomScale:0,samples:0,shadow:0,active:1},
 } as const;
 export type Quality=keyof typeof profiles;
-export function initialQuality(memory=4,mobile=false,saveData=false):Quality{return saveData||memory<=2?'low':'balanced';}
+export function initialQuality(memory=4,mobile=false,saveData=false):Quality{return saveData||memory<=2?'low':!mobile&&memory>=8?'high':'balanced';}
 /** Ignore warmup and isolated spikes; degrade only after three 30-frame slow windows. */
 export class PerformanceMonitor {
  private warmup=24;private costs:number[]=[];private slow=0;

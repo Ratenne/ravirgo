@@ -37,7 +37,7 @@ export async function mountOrbital(host:HTMLElement,resumeProgress:number=config
  renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.86;
  renderer.shadowMap.enabled=false;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.shadowMap.autoUpdate=false;
  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(36,1,.1,120);
- const set=buildWorkbench(scene,renderer,Array.from({length:3},(_,i)=>({slug:`slot-${i}`})),invalidate,quality==='low');
+ const set=buildWorkbench(scene,renderer,Array.from({length:5},(_,i)=>({slug:`slot-${i}`})),invalidate,quality==='low');
  const {geometries,materials,textures,turntable:deck,stations}=set;
  let cache=new ModelCache(renderer,mobile()||memory<=4,quality==='low');
  const materialFade=new MaterialFade();
@@ -52,7 +52,7 @@ export async function mountOrbital(host:HTMLElement,resumeProgress:number=config
   const pending=cache.acquire(service,slot.controller.signal).then(lease=>{if(disposed||version!==slot.version){lease.release();return;}slot.lease=lease;slot.placeholder.visible=false;slot.station.sculpture.add(lease.group);slot.station.group.userData.modelState=lease.status;fading(slot);applyProgress(progress);}).catch(()=>{if(!disposed&&version===slot.version){slot.station.group.userData.modelState='fallback';invalidate();}});
   pendingModels.add(pending);void pending.finally(()=>pendingModels.delete(pending));
  }
- const selectedSlugs=new Set(featured.map(s=>s.slug));let mobilePath=mobile(),path=createShowcasePath({mobile:mobilePath});
+ const selectedSlugs=new Set(featured.map(s=>s.slug));let mobilePath=mobile(),path=createShowcasePath({mobile:mobilePath,capacity:profile.active});
  let schedule=createSchedule(featured.length,profile.active,path.gap);
  const phases=new Map<string,ReturnType<typeof path.sample>&{local:number}>();
  if(config.debugPath||(import.meta.env.DEV&&new URL(location.href).searchParams.get('pathDebug')==='1')){const debug=new THREE.Group();debug.name='development-path';scene.add(debug);for(const [curve,color] of [[path.entry,'#65d5d0'],[path.orbit,'#dfbd80'],[path.exit,'#a5c9f7']] as const){const geometry=new THREE.BufferGeometry().setFromPoints(curve.getSpacedPoints(300));geometries.add(geometry);const mat=new THREE.LineBasicMaterial({color,depthTest:false});materials.add(mat);debug.add(new THREE.Line(geometry,mat));}host.dataset.debugPath='true';}
@@ -92,7 +92,7 @@ export async function mountOrbital(host:HTMLElement,resumeProgress:number=config
   const offset=position.clone().sub(target),halfH=Math.atan(Math.tan(THREE.MathUtils.degToRad(view.fov/2))*camera.aspect);offset.setLength(Math.max(offset.length(),config.camera.fitRadius/Math.sin(halfH)));position.copy(target).add(offset);
   camera.position.copy(position);camera.lookAt(target);camera.updateProjectionMatrix();camera.updateMatrixWorld();
  }
- function resize(){if(disposed||lost)return;const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;if(mobilePath!==mobile()){mobilePath=mobile();path=createShowcasePath({mobile:mobilePath});if(!manualQuality)setQuality(initialQuality(memory,mobile()));else{makeComposer();applyProgress(progress);}}
+ function resize(){if(disposed||lost)return;const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;if(mobilePath!==mobile()){mobilePath=mobile();path=createShowcasePath({mobile:mobilePath,capacity:profile.active});if(!manualQuality)setQuality(initialQuality(memory,mobile()));else{makeComposer();applyProgress(progress);}}
   renderer.shadowMap.enabled=profile.shadow>0;set.key.shadow.mapSize.set(profile.shadow||512,profile.shadow||512);renderer.setPixelRatio(Math.min(devicePixelRatio||1,profile.dpr));renderer.setSize(w,h,false);camera.aspect=w/h;positionCamera();
   composer?.setPixelRatio(renderer.getPixelRatio());composer?.setSize(w,h);bloomComposer?.setPixelRatio(1);bloomComposer?.setSize(w*profile.bloomScale,h*profile.bloomScale);bloom?.setSize(w*profile.bloomScale,h*profile.bloomScale);
   fxaa?.uniforms.resolution.value.set(1/(w*renderer.getPixelRatio()),1/(h*renderer.getPixelRatio()));
@@ -162,7 +162,7 @@ export async function mountOrbital(host:HTMLElement,resumeProgress:number=config
  for(const label of labels.values()){label.addEventListener('focus',()=>highlight(label.dataset.modelLabel!),{signal});label.addEventListener('blur',()=>highlight(null),{signal});label.addEventListener('click',e=>{if(e.detail!==0&&blockLabelClick)e.preventDefault();},{signal});label.addEventListener('dragstart',e=>e.preventDefault(),{signal});}
  // Only the 3D stage owns wheel input. Controls and the catalogue keep normal page scrolling.
  host.addEventListener('wheel',e=>{if(e.ctrlKey||lost||disposed||e.altKey||e.clientY>host.getBoundingClientRect().bottom-90)return;e.preventDefault();if(gesture)gesture.moved=true;const unit=e.deltaMode===1?16:e.deltaMode===2?host.clientHeight:1;const delta=Math.abs(e.deltaY)>=Math.abs(e.deltaX)?e.deltaY:e.deltaX;applyProgress(progress+delta*unit/inputDistances().wheel*path.period);},{passive:false,signal});
- function setQuality(value:Quality){quality=value;const select=section.querySelector<HTMLSelectElement>('select[data-quality]');if(select)select.value=quality;profile=profiles[quality];for(const slot of pool)release(slot);cache.dispose();cache=new ModelCache(renderer,quality!=='high',quality==='low');set.key.shadow.map?.dispose();set.key.shadow.map=null;makeComposer();applyProgress(progress);resize();}
+ function setQuality(value:Quality){quality=value;const select=section.querySelector<HTMLSelectElement>('select[data-quality]');if(select)select.value=quality;profile=profiles[quality];path=createShowcasePath({mobile:mobilePath,capacity:profile.active});for(const slot of pool)release(slot);cache.dispose();cache=new ModelCache(renderer,quality!=='high',quality==='low');set.key.shadow.map?.dispose();set.key.shadow.map=null;makeComposer();applyProgress(progress);resize();}
  section.querySelector<HTMLSelectElement>('select[data-quality]')?.addEventListener('change',e=>{manualQuality=true;setQuality((e.target as HTMLSelectElement).value as Quality);},{signal});
  for(const button of section.querySelectorAll<HTMLButtonElement>('[data-step]'))button.addEventListener('click',()=>applyProgress(progress+Number(button.dataset.step)*schedule.gap),{signal});
  document.addEventListener('ravirgo:select',e=>highlight((e as CustomEvent).detail.slug),{signal});

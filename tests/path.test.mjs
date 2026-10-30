@@ -8,7 +8,7 @@ test('closed CCW orbit, aligned core, platform clearance and tangent continuity'
  assert(Math.abs(sum-Math.PI*2)<1e-8);
  assert(path.entry.getPoint(1).distanceTo(path.orbit.getPoint(0))<1e-9);assert(path.exit.getPoint(0).distanceTo(path.orbit.getPoint(1))<1e-9);
  assert(path.entry.getTangent(1).dot(path.orbit.getTangent(0))>.999);assert(path.exit.getTangent(0).dot(path.orbit.getTangent(1))>.999);
- for(const count of [2,5,12,30])for(const budget of [1,2,3]){const schedule=createSchedule(count,budget,path.gap);for(let i=0;i<1000;i++){const actors=Array.from({length:count},(_,j)=>path.sample(schedule.local(schedule.period*i/1000,j))).filter(s=>['entry','orbit','exit'].includes(s.phase));for(let a=0;a<actors.length;a++)for(let b=a+1;b<actors.length;b++)assert(Math.hypot(actors[a].position.x-actors[b].position.x,actors[a].position.z-actors[b].position.z)>2.32);}}
+ for(const count of [1,2,3,4,5,12,30])for(const budget of [1,2,3,4,5]){const path=createShowcasePath({capacity:budget});const schedule=createSchedule(count,budget,path.gap);for(let i=0;i<1000;i++){const actors=Array.from({length:count},(_,j)=>path.sample(schedule.local(schedule.period*i/1000,j))).filter(s=>['entry','orbit','exit'].includes(s.phase));for(let a=0;a<actors.length;a++)for(let b=a+1;b<actors.length;b++)assert(Math.hypot(actors[a].position.x-actors[b].position.x,actors[a].position.z-actors[b].position.z)>2.32);}}
 });
 
 test('entry and exit podiums clear the rear parapet in both viewport paths',()=>{
